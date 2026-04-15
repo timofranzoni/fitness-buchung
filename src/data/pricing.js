@@ -1,0 +1,82 @@
+export const PLANS = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    tagline: 'Perfekt zum Einsteigen',
+    price: 29,
+    period: 'Monat',
+    color: '#8888a8',
+    highlight: false,
+    features: [
+      { text: '5 Kurse pro Monat', included: true },
+      { text: 'Zugang zu Geräten (Mo–Fr, 9–18 Uhr)', included: true },
+      { text: 'Umkleide & Duschen', included: true },
+      { text: 'FitBook App inklusive', included: true },
+      { text: 'Kurse am Wochenende', included: false },
+      { text: 'Personal Training (1 Std./Monat)', included: false },
+      { text: 'Ernährungsberatung', included: false },
+      { text: 'Gästepass (1x/Monat)', included: false },
+    ],
+    cta: 'Jetzt starten',
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    tagline: 'Unser beliebtestes Angebot',
+    price: 59,
+    period: 'Monat',
+    color: '#ff6b1a',
+    highlight: true,
+    badge: 'Beliebteste Wahl',
+    features: [
+      { text: 'Unbegrenzte Kurse', included: true },
+      { text: 'Freier Gerätezugang (täglich 6–23 Uhr)', included: true },
+      { text: 'Umkleide & Duschen', included: true },
+      { text: 'FitBook App inklusive', included: true },
+      { text: 'Kurse am Wochenende', included: true },
+      { text: 'Personal Training (1 Std./Monat)', included: true },
+      { text: 'Ernährungsberatung', included: false },
+      { text: 'Gästepass (1x/Monat)', included: false },
+    ],
+    cta: 'Pro wählen',
+  },
+  {
+    id: 'elite',
+    name: 'Elite',
+    tagline: 'Das komplette Paket',
+    price: 99,
+    period: 'Monat',
+    color: '#fbbf24',
+    highlight: false,
+    features: [
+      { text: 'Unbegrenzte Kurse', included: true },
+      { text: 'Freier Gerätezugang (24/7)', included: true },
+      { text: 'Umkleide, Duschen & Sauna', included: true },
+      { text: 'FitBook App inklusive', included: true },
+      { text: 'Kurse am Wochenende', included: true },
+      { text: 'Personal Training (4 Std./Monat)', included: true },
+      { text: 'Monatliche Ernährungsberatung', included: true },
+      { text: 'Gästepass (2x/Monat)', included: true },
+    ],
+    cta: 'Elite wählen',
+  },
+]
+
+export const FAQS = [
+  {
+    q: 'Gibt es eine Mindestlaufzeit?',
+    a: 'Alle Tarife sind monatlich kündbar. Kein Jahresvertrag, keine versteckten Kosten.',
+  },
+  {
+    q: 'Kann ich meinen Tarif wechseln?',
+    a: 'Ja, jederzeit zum nächsten Monatsbeginn. Upgrades gelten sofort.',
+  },
+  {
+    q: 'Was ist der Unterschied beim Gerätezugang?',
+    a: 'Starter hat eingeschränkte Öffnungszeiten (Mo–Fr 9–18 Uhr), Pro und Elite haben erweiterten Zugang, Elite sogar 24/7.',
+  },
+  {
+    q: 'Sind Kurse im Tarif enthalten?',
+    a: 'Beim Starter-Tarif sind 5 Kurse inklusive, bei Pro und Elite unbegrenzt viele.',
+  },
+]

@@ -1,0 +1,360 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.pageHeader {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  max-width: 440px;
+}
+
+/* Grid */
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: border-color 0.25s;
+}
+
+.cardOpen {
+  border-color: var(--tc, var(--accent));
+  box-shadow: 0 0 0 1px var(--tc, var(--accent))20;
+}
+
+.cardMain {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--tc, var(--accent)), rgba(0,0,0,0.3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.avatarRing {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid var(--tc, var(--accent));
+  opacity: 0.4;
+}
+
+.cardInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cardName {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cardRole {
+  font-size: 0.85rem;
+  color: var(--tc, var(--accent));
+  font-weight: 600;
+}
+
+.cardRating {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+}
+
+.stars {
+  color: #fbbf24;
+  font-size: 0.8rem;
+}
+
+.ratingText {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.cardExp {
+  margin-top: 0.25rem;
+}
+
+.expBadge {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.toggleBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.cardOpen .toggleBtn {
+  background: var(--tc, var(--accent));
+  border-color: var(--tc, var(--accent));
+  color: #fff;
+}
+
+.toggleBtn:hover {
+  border-color: rgba(255,255,255,0.25);
+}
+
+/* Detail */
+.cardDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.bio {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.detailCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.detailLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.625rem;
+}
+
+.certList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.certItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.certDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tc, var(--accent));
+  flex-shrink: 0;
+}
+
+.courseChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.courseChip {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.scheduleChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.scheduleChip {
+  background: var(--tc, var(--accent));
+  background: linear-gradient(135deg, var(--tc, var(--accent))30, var(--tc, var(--accent))15);
+  border: 1px solid var(--tc, var(--accent))50;
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tc, var(--accent));
+}
+
+.bookBtn {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--tc, var(--accent));
+  color: #fff;
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  opacity: 0.9;
+}
+
+.bookBtn:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+/* Team CTA */
+.teamCta {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.teamCtaAvatars {
+  display: flex;
+}
+
+.teamCtaAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fff;
+  margin-left: -10px;
+  border: 2px solid var(--bg-card);
+  flex-shrink: 0;
+}
+
+.teamCtaAvatars .teamCtaAvatar:first-child {
+  margin-left: 0;
+}
+
+.teamCtaText {
+  flex: 1;
+}
+
+.teamCtaTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.teamCtaSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+.teamCtaBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 0.625rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.teamCtaBtn:hover {
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.04);
+}
+
+@media (max-width: 500px) {
+  .detailCols {
+    grid-template-columns: 1fr;
+  }
+  .teamCta {
+    flex-direction: column;
+    text-align: center;
+  }
+  .teamCtaAvatars {
+    justify-content: center;
+  }
+  .bookBtn {
+    align-self: stretch;
+    text-align: center;
+  }
+}

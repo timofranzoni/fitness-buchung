@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase.js'
+import { useStudio } from '../context/StudioContext.jsx'
 import BookingsTab from '../components/admin/BookingsTab.jsx'
 import CoursesTab  from '../components/admin/CoursesTab.jsx'
 import TrainersTab from '../components/admin/TrainersTab.jsx'
@@ -52,32 +53,50 @@ function AdminLogin() {
   )
 }
 
+// ─── Kein Zugriff ─────────────────────────────────────────────────────────────
+
+function AccessDenied({ onLogout }) {
+  return (
+    <div className={styles.loginWrap}>
+      <div className={styles.loginCard}>
+        <div style={{ fontSize:'3rem', textAlign:'center' }}>🚫</div>
+        <h1 className={styles.loginTitle}>Kein Zugriff</h1>
+        <p className={styles.loginSubtitle}>
+          Du hast keine Berechtigung für dieses Studio. Bitte kontaktiere den SuperAdmin.
+        </p>
+        <button className={styles.loginBtn} onClick={onLogout}>Abmelden</button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id:'bookings',  label:'Buchungen', icon:'📋' },
-  { id:'courses',   label:'Kurse',     icon:'🏋️' },
-  { id:'trainers',  label:'Trainer',   icon:'👥' },
+  { id:'bookings',  label:'Buchungen',     icon:'📋' },
+  { id:'courses',   label:'Kurse',         icon:'🏋️' },
+  { id:'trainers',  label:'Trainer',       icon:'👥' },
   { id:'settings',  label:'Einstellungen', icon:'⚙️' },
 ]
 
-function Dashboard({ user, onLogout }) {
+function Dashboard({ user, studioId, studioName, onLogout }) {
   const [tab, setTab]       = useState('bookings')
   const [counts, setCounts] = useState({ bookings:0, courses:0, trainers:0 })
   const [todayCount, setTodayCount] = useState(0)
 
   useEffect(() => {
+    if (!studioId) return
     const today = new Date().toISOString().split('T')[0]
     Promise.all([
-      supabase.from('bookings').select('*', { count:'exact', head:true }),
-      supabase.from('courses').select('*',  { count:'exact', head:true }),
-      supabase.from('trainers').select('*', { count:'exact', head:true }),
-      supabase.from('bookings').select('*', { count:'exact', head:true }).eq('booking_date', today),
+      supabase.from('bookings').select('*', { count:'exact', head:true }).eq('studio_id', studioId),
+      supabase.from('courses').select('*',  { count:'exact', head:true }).eq('studio_id', studioId),
+      supabase.from('trainers').select('*', { count:'exact', head:true }).eq('studio_id', studioId),
+      supabase.from('bookings').select('*', { count:'exact', head:true }).eq('studio_id', studioId).eq('booking_date', today),
     ]).then(([b, c, t, td]) => {
       setCounts({ bookings: b.count ?? 0, courses: c.count ?? 0, trainers: t.count ?? 0 })
       setTodayCount(td.count ?? 0)
     }).catch(() => {})
-  }, [])
+  }, [studioId])
 
   const STATS = [
     { icon:'📋', label:'Buchungen gesamt',  value: counts.bookings },
@@ -91,7 +110,7 @@ function Dashboard({ user, onLogout }) {
       <header className={styles.adminHeader}>
         <div className={styles.adminLogo}>
           ⚡ Fit<span>Book</span>
-          <span className={styles.adminBadge}>Admin</span>
+          <span className={styles.adminBadge}>{studioName ?? 'Admin'}</span>
         </div>
         <div className={styles.adminHeaderRight}>
           <span className={styles.adminUserEmail}>{user?.email}</span>
@@ -130,15 +149,15 @@ function Dashboard({ user, onLogout }) {
         {/* Tab Content */}
         <div className={styles.tabContent}>
           {tab === 'bookings' && (
-            <BookingsTab onCountChange={n => setCounts(c => ({ ...c, bookings: n }))} />
+            <BookingsTab studioId={studioId} onCountChange={n => setCounts(c => ({ ...c, bookings: n }))} />
           )}
           {tab === 'courses' && (
-            <CoursesTab onCountChange={n => setCounts(c => ({ ...c, courses: n }))} />
+            <CoursesTab studioId={studioId} onCountChange={n => setCounts(c => ({ ...c, courses: n }))} />
           )}
           {tab === 'trainers' && (
-            <TrainersTab onCountChange={n => setCounts(c => ({ ...c, trainers: n }))} />
+            <TrainersTab studioId={studioId} onCountChange={n => setCounts(c => ({ ...c, trainers: n }))} />
           )}
-          {tab === 'settings' && <SettingsTab />}
+          {tab === 'settings' && <SettingsTab studioId={studioId} />}
         </div>
       </div>
     </div>
@@ -148,15 +167,36 @@ function Dashboard({ user, onLogout }) {
 // ─── Haupt-Export ─────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  const [session, setSession] = useState(undefined)
+  const { studio } = useStudio()
+  const [session, setSession]     = useState(undefined)
+  const [hasAccess, setHasAccess] = useState(null) // null = checking
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setSession(session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSession(session)
+      setHasAccess(null) // re-check on auth change
+    })
     return () => subscription.unsubscribe()
   }, [])
 
-  if (session === undefined) {
+  // Prüfen ob User Zugriff auf dieses Studio hat
+  useEffect(() => {
+    if (!session || !studio) { setHasAccess(null); return }
+
+    supabase
+      .from('studio_users')
+      .select('role, studio_id')
+      .eq('user_id', session.user.id)
+      .then(({ data }) => {
+        if (!data) { setHasAccess(false); return }
+        const isSuperadmin = data.some(r => r.role === 'superadmin')
+        const isStudioAdmin = data.some(r => r.studio_id === studio.id)
+        setHasAccess(isSuperadmin || isStudioAdmin)
+      })
+  }, [session, studio])
+
+  if (session === undefined || (session && hasAccess === null)) {
     return (
       <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ width:36, height:36, border:'3px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
@@ -165,6 +205,14 @@ export default function AdminPage() {
   }
 
   if (!session) return <AdminLogin />
+  if (!hasAccess) return <AccessDenied onLogout={() => supabase.auth.signOut()} />
 
-  return <Dashboard user={session.user} onLogout={() => supabase.auth.signOut()} />
+  return (
+    <Dashboard
+      user={session.user}
+      studioId={studio?.id}
+      studioName={studio?.name}
+      onLogout={() => supabase.auth.signOut()}
+    />
+  )
 }

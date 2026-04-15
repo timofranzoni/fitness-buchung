@@ -8,7 +8,7 @@ function initials(name) {
   return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,2)
 }
 
-function TrainerModal({ trainer, onSave, onClose }) {
+function TrainerModal({ trainer, studioId, onSave, onClose }) {
   const isEdit = Boolean(trainer?.id)
   const [form, setForm] = useState({
     name:           trainer?.name           ?? '',
@@ -41,7 +41,11 @@ function TrainerModal({ trainer, onSave, onClose }) {
     if (!form.name.trim()) { setError('Name ist Pflichtfeld.'); return }
     setSaving(true); setError('')
     try {
-      isEdit ? await updateTrainer(trainer.id, form) : await createTrainer(form)
+      if (isEdit) {
+        await updateTrainer(trainer.id, form)
+      } else {
+        await createTrainer(studioId, form)
+      }
       onSave()
     } catch (e) { setError(e.message) }
     finally { setSaving(false) }
@@ -201,7 +205,7 @@ function TrainerModal({ trainer, onSave, onClose }) {
   )
 }
 
-export default function TrainersTab({ onCountChange }) {
+export default function TrainersTab({ studioId, onCountChange }) {
   const [trainers, setTrainers]         = useState([])
   const [loading, setLoading]           = useState(true)
   const [modal, setModal]               = useState(null)
@@ -209,11 +213,11 @@ export default function TrainersTab({ onCountChange }) {
 
   async function load() {
     setLoading(true)
-    const t = await fetchTrainers().catch(() => [])
+    const t = await fetchTrainers(studioId).catch(() => [])
     setTrainers(t); onCountChange?.(t.length)
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [studioId])
 
   async function handleDelete(id) {
     await deleteTrainer(id).catch(console.error)
@@ -284,6 +288,7 @@ export default function TrainersTab({ onCountChange }) {
       {modal && (
         <TrainerModal
           trainer={modal === 'new' ? null : modal}
+          studioId={studioId}
           onClose={() => setModal(null)}
           onSave={() => { setModal(null); load() }}
         />

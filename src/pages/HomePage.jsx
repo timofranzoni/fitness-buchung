@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { COURSES, INTENSITY_COLORS } from '../data/courses.js'
 import { TRAINERS } from '../data/trainers.js'
 import styles from './HomePage.module.css'
@@ -11,6 +11,9 @@ const STATS = [
 ]
 
 export default function HomePage() {
+  const { slug } = useParams()
+  const base = `/studio/${slug}`
+
   return (
     <div className={styles.page}>
 
@@ -26,8 +29,8 @@ export default function HomePage() {
           Buch jetzt deinen ersten Kurs — kostenlos.
         </p>
         <div className={styles.heroActions}>
-          <Link to="/buchen" className={styles.heroCta}>Kurs buchen →</Link>
-          <Link to="/kurse" className={styles.heroSecondary}>Kurse entdecken</Link>
+          <Link to={`${base}/buchen`} className={styles.heroCta}>Kurs buchen →</Link>
+          <Link to={`${base}/kurse`} className={styles.heroSecondary}>Kurse entdecken</Link>
         </div>
         <div className={styles.heroStats}>
           {STATS.map(s => (
@@ -46,11 +49,11 @@ export default function HomePage() {
             <div className={styles.sectionEyebrow}>Was wir bieten</div>
             <h2 className={styles.sectionTitle}>Unsere Kurse</h2>
           </div>
-          <Link to="/kurse" className={styles.sectionLink}>Alle Kurse →</Link>
+          <Link to={`${base}/kurse`} className={styles.sectionLink}>Alle Kurse →</Link>
         </div>
         <div className={styles.courseGrid}>
           {COURSES.map(course => (
-            <Link to="/buchen" key={course.id} className={styles.courseCard} style={{ '--c': course.color }}>
+            <Link to={`${base}/buchen`} key={course.id} className={styles.courseCard} style={{ '--c': course.color }}>
               <div className={styles.courseCardTop}>
                 <span className={styles.courseIcon}>{course.icon}</span>
                 <span className={styles.courseIntensity} style={{ color: INTENSITY_COLORS[course.intensity] }}>
@@ -72,11 +75,11 @@ export default function HomePage() {
             <div className={styles.sectionEyebrow}>Dein Team</div>
             <h2 className={styles.sectionTitle}>Unsere Trainer</h2>
           </div>
-          <Link to="/trainer" className={styles.sectionLink}>Alle Trainer →</Link>
+          <Link to={`${base}/trainer`} className={styles.sectionLink}>Alle Trainer →</Link>
         </div>
         <div className={styles.trainerGrid}>
           {TRAINERS.slice(0, 3).map(t => (
-            <Link to="/trainer" key={t.id} className={styles.trainerCard}>
+            <Link to={`${base}/trainer`} key={t.id} className={styles.trainerCard}>
               <div className={styles.trainerAvatar} style={{ '--tc': t.color }}>
                 {t.initials}
               </div>
@@ -96,7 +99,7 @@ export default function HomePage() {
           <h2 className={styles.ctaBannerTitle}>Bereit loszulegen?</h2>
           <p className={styles.ctaBannerText}>Buch deinen ersten Kurs heute – ganz ohne Mitgliedschaft.</p>
         </div>
-        <Link to="/buchen" className={styles.heroCta}>Jetzt buchen →</Link>
+        <Link to={`${base}/buchen`} className={styles.heroCta}>Jetzt buchen →</Link>
       </section>
 
     </div>

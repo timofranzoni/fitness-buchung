@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { fetchStudioBySlug } from '../lib/studioService.js'
 import { fetchSettings } from '../lib/settingsService.js'
 import { applyTheme } from '../lib/theme.js'
 
-const DEFAULT = {
+const DEFAULT_SETTINGS = {
   name: 'FitBook',
   logo_emoji: '⚡',
   logo_url: null,
@@ -10,13 +11,23 @@ const DEFAULT = {
   description: 'Dein Fitnessstudio. Deine Kurse. Deine Zeit.',
 }
 
-const StudioContext = createContext({ settings: DEFAULT, refresh: () => {} })
+const StudioContext = createContext({
+  studio: null,
+  settings: DEFAULT_SETTINGS,
+  setSettings: () => {},
+  refresh: () => {},
+  loading: true,
+  notFound: false,
+})
 
-export function StudioProvider({ children }) {
-  const [settings, setSettings] = useState(DEFAULT)
+export function StudioProvider({ slug, children }) {
+  const [studio, setStudio]     = useState(null)
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+  const [loading, setLoading]   = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
-  const refresh = useCallback(async () => {
-    const s = await fetchSettings()
+  const refresh = useCallback(async (studioId) => {
+    const s = await fetchSettings(studioId)
     if (s) {
       setSettings(s)
       applyTheme(s.primary_color)
@@ -24,10 +35,23 @@ export function StudioProvider({ children }) {
     }
   }, [])
 
-  useEffect(() => { refresh() }, [refresh])
+  useEffect(() => {
+    if (!slug) { setLoading(false); return }
+
+    fetchStudioBySlug(slug).then(async st => {
+      if (!st) {
+        setNotFound(true)
+        setLoading(false)
+        return
+      }
+      setStudio(st)
+      await refresh(st.id)
+      setLoading(false)
+    })
+  }, [slug, refresh])
 
   return (
-    <StudioContext.Provider value={{ settings, setSettings, refresh }}>
+    <StudioContext.Provider value={{ studio, settings, setSettings, refresh: () => refresh(studio?.id), loading, notFound }}>
       {children}
     </StudioContext.Provider>
   )

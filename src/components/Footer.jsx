@@ -1,24 +1,29 @@
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { useStudio } from '../context/StudioContext.jsx'
 import styles from './Footer.module.css'
 
 export default function Footer() {
+  const { settings } = useStudio()
+  const { slug } = useParams()
+  const base = `/studio/${slug}`
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.brand}>
           <div className={styles.logo}>
-            <span>⚡</span>
-            <span>Fit<span className={styles.logoAccent}>Book</span></span>
+            <span>{settings.logo_emoji ?? '⚡'}</span>
+            <span>{settings.name ?? 'Fit'}<span className={styles.logoAccent}>Book</span></span>
           </div>
-          <p className={styles.tagline}>Dein Fitnessstudio. Deine Kurse. Deine Zeit.</p>
+          <p className={styles.tagline}>{settings.description ?? 'Dein Fitnessstudio. Deine Kurse. Deine Zeit.'}</p>
         </div>
         <div className={styles.links}>
           <div className={styles.linkGroup}>
             <div className={styles.linkGroupTitle}>Angebot</div>
-            <Link to="/kurse" className={styles.link}>Kurse</Link>
-            <Link to="/trainer" className={styles.link}>Trainer</Link>
-            <Link to="/preise" className={styles.link}>Preise</Link>
-            <Link to="/buchen" className={styles.link}>Kurs buchen</Link>
+            <Link to={`${base}/kurse`}   className={styles.link}>Kurse</Link>
+            <Link to={`${base}/trainer`} className={styles.link}>Trainer</Link>
+            <Link to={`${base}/preise`}  className={styles.link}>Preise</Link>
+            <Link to={`${base}/buchen`}  className={styles.link}>Kurs buchen</Link>
           </div>
           <div className={styles.linkGroup}>
             <div className={styles.linkGroupTitle}>Studio</div>
@@ -35,7 +40,7 @@ export default function Footer() {
         </div>
       </div>
       <div className={styles.bottom}>
-        <p>© 2026 FitBook GmbH · Alle Rechte vorbehalten</p>
+        <p>© {new Date().getFullYear()} {settings.name ?? 'FitBook'} · Alle Rechte vorbehalten</p>
       </div>
     </footer>
   )

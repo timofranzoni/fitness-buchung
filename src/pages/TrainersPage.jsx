@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { fetchTrainers } from '../lib/trainerService.js'
+import { useStudio } from '../context/StudioContext.jsx'
 import styles from './TrainersPage.module.css'
 
 function initials(name) {
@@ -8,13 +9,17 @@ function initials(name) {
 }
 
 export default function TrainersPage() {
+  const { studio } = useStudio()
+  const { slug } = useParams()
+  const base = `/studio/${slug}`
+
   const [trainers, setTrainers] = useState([])
   const [loading, setLoading]   = useState(true)
   const [active, setActive]     = useState(null)
 
   useEffect(() => {
-    fetchTrainers().then(setTrainers).finally(() => setLoading(false))
-  }, [])
+    fetchTrainers(studio?.id).then(setTrainers).finally(() => setLoading(false))
+  }, [studio?.id])
 
   return (
     <div className={styles.page}>
@@ -106,7 +111,7 @@ export default function TrainersPage() {
                       )}
                     </div>
                   </div>
-                  <Link to="/buchen" className={styles.bookBtn}>
+                  <Link to={`${base}/buchen`} className={styles.bookBtn}>
                     Kurs bei {trainer.name.split(' ')[0]} buchen →
                   </Link>
                 </div>

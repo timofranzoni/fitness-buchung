@@ -7,7 +7,7 @@ const PRESET_ICONS  = ['🧘','🏋️','🚴','🤸','🥊','💃','🏃','⚡'
 const INTENSITIES   = ['Leicht','Mittel','Intensiv']
 const INTENSITY_COLORS = { Leicht:'#34d399', Mittel:'#fbbf24', Intensiv:'#f87171' }
 
-function CourseModal({ course, onSave, onClose }) {
+function CourseModal({ course, studioId, onSave, onClose }) {
   const isEdit = Boolean(course?.id)
   const [form, setForm] = useState({
     name: course?.name ?? '', icon: course?.icon ?? '🏋️',
@@ -36,7 +36,11 @@ function CourseModal({ course, onSave, onClose }) {
     if (!form.slots.length) { setError('Mindestens eine Uhrzeit angeben.'); return }
     setSaving(true); setError('')
     try {
-      isEdit ? await updateCourse(course.id, form) : await createCourse(form)
+      if (isEdit) {
+        await updateCourse(course.id, form)
+      } else {
+        await createCourse(studioId, form)
+      }
       onSave()
     } catch (e) { setError(e.message) }
     finally { setSaving(false) }
@@ -132,7 +136,7 @@ function CourseModal({ course, onSave, onClose }) {
   )
 }
 
-export default function CoursesTab({ onCountChange }) {
+export default function CoursesTab({ studioId, onCountChange }) {
   const [courses, setCourses]         = useState([])
   const [loading, setLoading]         = useState(true)
   const [modal, setModal]             = useState(null)
@@ -140,11 +144,11 @@ export default function CoursesTab({ onCountChange }) {
 
   async function load() {
     setLoading(true)
-    const c = await fetchCourses().catch(() => [])
+    const c = await fetchCourses(studioId).catch(() => [])
     setCourses(c); onCountChange?.(c.length)
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [studioId])
 
   async function handleDelete(id) {
     await deleteCourse(id).catch(console.error)
@@ -197,6 +201,7 @@ export default function CoursesTab({ onCountChange }) {
       {modal && (
         <CourseModal
           course={modal === 'new' ? null : modal}
+          studioId={studioId}
           onClose={() => setModal(null)}
           onSave={() => { setModal(null); load() }}
         />

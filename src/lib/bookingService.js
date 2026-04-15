@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js'
 
-export async function createBooking(bookingData) {
+export async function createBooking(studioId, bookingData) {
   const { data, error } = await supabase
     .from('bookings')
     .insert({
@@ -12,6 +12,7 @@ export async function createBooking(bookingData) {
       course_icon:    bookingData.course.icon,
       slot_time:      bookingData.slot,
       booking_date:   bookingData.date,
+      studio_id:      studioId,
     })
     .select()
     .single()
@@ -27,11 +28,11 @@ export async function sendConfirmationEmail(bookingData) {
   if (error) throw error
 }
 
-export async function fetchAllBookings() {
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('*')
-    .order('created_at', { ascending: false })
+export async function fetchAllBookings(studioId) {
+  let query = supabase.from('bookings').select('*').order('created_at', { ascending: false })
+  if (studioId) query = query.eq('studio_id', studioId)
+
+  const { data, error } = await query
   if (error) throw error
   return data ?? []
 }

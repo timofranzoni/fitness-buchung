@@ -16,7 +16,7 @@ const PRESET_COLORS = [
   { hex:'#06b6d4', name:'Cyan'      },
 ]
 
-export default function SettingsTab() {
+export default function SettingsTab({ studioId }) {
   const { refresh } = useStudio()
   const [form, setForm] = useState({
     name: 'FitBook', logo_emoji: '⚡', logo_url: '', primary_color: '#ff6b1a', description: '',
@@ -27,10 +27,11 @@ export default function SettingsTab() {
   const [error, setError]               = useState('')
 
   useEffect(() => {
-    fetchSettings().then(s => {
+    if (!studioId) return
+    fetchSettings(studioId).then(s => {
       if (s) { setForm({ name: s.name, logo_emoji: s.logo_emoji ?? '⚡', logo_url: s.logo_url ?? '', primary_color: s.primary_color, description: s.description ?? '' }); setPreviewColor(s.primary_color) }
     })
-  }, [])
+  }, [studioId])
 
   function handleColorChange(hex) {
     setForm(f => ({ ...f, primary_color: hex }))
@@ -41,7 +42,7 @@ export default function SettingsTab() {
   async function handleSave() {
     setSaving(true); setError(''); setSaved(false)
     try {
-      await saveSettings({ ...form, logo_url: form.logo_url || null })
+      await saveSettings(studioId, { ...form, logo_url: form.logo_url || null })
       await refresh()
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)

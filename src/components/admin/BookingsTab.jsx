@@ -18,7 +18,7 @@ const QUICK_FILTERS = [
   { label: 'Dieser Monat', value: 'month' },
 ]
 
-export default function BookingsTab({ onCountChange }) {
+export default function BookingsTab({ studioId, onCountChange }) {
   const [bookings, setBookings]         = useState([])
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
@@ -28,11 +28,11 @@ export default function BookingsTab({ onCountChange }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   useEffect(() => {
-    fetchAllBookings()
+    fetchAllBookings(studioId)
       .then(b => { setBookings(b); onCountChange?.(b.length) })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [])
+  }, [studioId])
 
   async function handleDelete(id) {
     await deleteBooking(id).catch(console.error)

@@ -4,7 +4,8 @@ import styles from './BookingForm.module.css'
 
 const STEPS = ['Kurs wählen', 'Uhrzeit wählen', 'Deine Daten']
 
-export default function BookingForm({ onSubmit }) {
+export default function BookingForm({ onSubmit, courses: coursesProp }) {
+  const COURSES_DATA = coursesProp?.length ? coursesProp : COURSES
   const [step, setStep] = useState(0)
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -90,7 +91,7 @@ export default function BookingForm({ onSubmit }) {
       {step === 0 && (
         <div className={styles.stepContent}>
           <div className={styles.courseGrid}>
-            {COURSES.map(course => (
+            {COURSES_DATA.map(course => (
               <button
                 key={course.id}
                 className={`${styles.courseCard} ${selectedCourse?.id === course.id ? styles.courseCardSelected : ''}`}

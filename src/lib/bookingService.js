@@ -3,14 +3,23 @@ import { supabase } from './supabase.js'
 const SUPABASE_URL     = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Direkter fetch zur Edge Function — zuverlässiger als supabase.functions.invoke
+// Direkter fetch zur Edge Function
+// verify_jwt = false in supabase/config.toml → kein JWT nötig für öffentliche Funktionen
 async function invokeFunction(name, body) {
+  // Session-JWT verwenden falls vorhanden (Admin), sonst nur apikey-Header
+  const { data: { session } } = await supabase.auth.getSession()
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_ANON_KEY,
+  }
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`
+  }
+
   const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
-    method:  'POST',
-    headers: {
-      'Content-Type':  'application/json',
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-    },
+    method: 'POST',
+    headers,
     body: JSON.stringify(body),
   })
   const text = await res.text()

@@ -1,0 +1,280 @@
+/* ── Floating Edit Button (wenn nicht im Edit-Modus) ─────────────────────── */
+
+.floatBtn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0f0f13;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.floatBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.floatBtnDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── Toolbar (im Edit-Modus) ─────────────────────────────────────────────── */
+
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  height: 56px;
+  background: rgba(10, 10, 14, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  gap: 1rem;
+}
+
+.toolbarSpacer {
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.toolbarBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(59,130,246,0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius: 20px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.toolbarBadgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #60a5fa;
+  animation: pulse 1.5s infinite;
+}
+
+.toolbarHint {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.3);
+  display: none;
+}
+@media (min-width: 640px) { .toolbarHint { display: block; } }
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Toolbar Buttons ─────────────────────────────────────────────────────── */
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.toolbarBtn:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.saveBtn {
+  composes: toolbarBtn;
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 700;
+}
+.saveBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  color: #fff;
+}
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.saveBtnSaved {
+  composes: saveBtn;
+  background: #10b981;
+  border-color: transparent;
+}
+
+.dirtyDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.8;
+}
+
+/* ── Color-Picker Panel ──────────────────────────────────────────────────── */
+
+.colorPickerWrap {
+  position: relative;
+}
+
+.colorPanel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #1a1a24;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 1rem;
+  width: 220px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  z-index: 100;
+}
+.colorPanelTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.75rem;
+}
+.colorSwatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 0.75rem;
+}
+.colorSwatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+.colorSwatch:hover { transform: scale(1.1); }
+.colorSwatchActive { border-color: #fff !important; }
+.colorCustomRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.colorCustomInput {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.6rem;
+  font-family: monospace;
+}
+.colorCustomInput:focus { outline: none; border-color: var(--accent); }
+
+/* ── Editierbare Elemente ────────────────────────────────────────────────── */
+
+.editable {
+  cursor: text;
+  border-radius: 4px;
+  outline: 2px dashed transparent;
+  outline-offset: 3px;
+  transition: outline-color 0.12s, background 0.12s;
+}
+.editable:hover {
+  outline-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.07);
+}
+
+.editingActive {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 3px;
+  background: rgba(59, 130, 246, 0.06);
+  border-radius: 4px;
+  min-width: 40px;
+  display: inline-block;
+}
+
+/* Textarea für mehrzeilige Felder */
+.editTextarea {
+  width: 100%;
+  background: rgba(59,130,246,0.06);
+  border: 2px solid #3b82f6;
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  padding: 4px 8px;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  min-height: 3em;
+}
+
+/* Input für Preise */
+.editInput {
+  background: rgba(59,130,246,0.06);
+  border: 2px solid #3b82f6;
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 2px 6px;
+  outline: none;
+  width: 5ch;
+  text-align: center;
+}
+
+/* Klickbarer Bereich-Rahmen */
+.editableBlock {
+  cursor: text;
+  border-radius: 6px;
+  outline: 2px dashed transparent;
+  outline-offset: 4px;
+  transition: outline-color 0.12s, background 0.12s;
+}
+.editableBlock:hover {
+  outline-color: #3b82f6;
+  background: rgba(59,130,246,0.04);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

@@ -1,11 +1,22 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PLANS, FAQS } from '../data/pricing.js'
+import { useContent } from '../context/ContentContext.jsx'
+import { ET } from '../components/LiveEditor.jsx'
 import styles from './PricingPage.module.css'
 
 export default function PricingPage() {
-  const [billing, setBilling] = useState('monthly') // monthly | yearly
+  const [billing, setBilling] = useState('monthly')
   const [openFaq, setOpenFaq] = useState(null)
+  const { content } = useContent()
+
+  // Plan-Overrides aus DB (Name, Tagline, Preis) – Rest bleibt statisch
+  const plans = PLANS.map((plan, i) => ({
+    ...plan,
+    name:    content.plans?.[i]?.name    ?? plan.name,
+    tagline: content.plans?.[i]?.tagline ?? plan.tagline,
+    price:   content.plans?.[i]?.price   ?? plan.price,
+  }))
 
   function getPrice(plan) {
     return billing === 'yearly' ? Math.round(plan.price * 0.8) : plan.price
@@ -14,7 +25,7 @@ export default function PricingPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <div className={styles.eyebrow}>Transparent & fair</div>
+        <div className={styles.eyebrow}>Transparent &amp; fair</div>
         <h1 className={styles.title}>Unsere Tarife</h1>
         <p className={styles.subtitle}>Kein Jahresvertrag. Monatlich kündbar. Für jeden das passende Paket.</p>
 
@@ -22,39 +33,46 @@ export default function PricingPage() {
           <button
             className={`${styles.switchBtn} ${billing === 'monthly' ? styles.switchBtnActive : ''}`}
             onClick={() => setBilling('monthly')}
-          >
-            Monatlich
-          </button>
+          >Monatlich</button>
           <button
             className={`${styles.switchBtn} ${billing === 'yearly' ? styles.switchBtnActive : ''}`}
             onClick={() => setBilling('yearly')}
           >
-            Jährlich
-            <span className={styles.saveBadge}>–20%</span>
+            Jährlich<span className={styles.saveBadge}>–20%</span>
           </button>
         </div>
       </div>
 
       {/* Plans */}
       <div className={styles.plansGrid}>
-        {PLANS.map(plan => (
+        {plans.map((plan, i) => (
           <div
             key={plan.id}
             className={`${styles.planCard} ${plan.highlight ? styles.planCardHighlight : ''}`}
             style={{ '--pc': plan.color }}
           >
             {plan.badge && <div className={styles.planBadge}>{plan.badge}</div>}
-            <div className={styles.planName}>{plan.name}</div>
-            <div className={styles.planTagline}>{plan.tagline}</div>
+
+            <div className={styles.planName}>
+              <ET field={`plans.${i}.name`}>{plan.name}</ET>
+            </div>
+            <div className={styles.planTagline}>
+              <ET field={`plans.${i}.tagline`}>{plan.tagline}</ET>
+            </div>
+
             <div className={styles.planPriceRow}>
-              <span className={styles.planPrice}>{getPrice(plan)} €</span>
+              <span className={styles.planPrice}>
+                <ET field={`plans.${i}.price`} number>{getPrice(plan)}</ET> €
+              </span>
               <span className={styles.planPeriod}>/ {plan.period}</span>
             </div>
+
             {billing === 'yearly' && (
               <div className={styles.yearlyNote}>
                 Statt {plan.price} € · Du sparst {plan.price * 12 - getPrice(plan) * 12} €/Jahr
               </div>
             )}
+
             <div className={styles.planDivider} />
             <ul className={styles.featureList}>
               {plan.features.map(f => (
@@ -77,9 +95,9 @@ export default function PricingPage() {
       {/* Trust bar */}
       <div className={styles.trustBar}>
         {[
-          { icon: '🔒', text: 'SSL-verschlüsselt' },
-          { icon: '📅', text: 'Monatlich kündbar' },
-          { icon: '💳', text: 'SEPA & Kreditkarte' },
+          { icon: '🔒', text: 'SSL-verschlüsselt'            },
+          { icon: '📅', text: 'Monatlich kündbar'            },
+          { icon: '💳', text: 'SEPA & Kreditkarte'           },
           { icon: '🎁', text: '1. Monat bei Jahrestarif gratis' },
         ].map(item => (
           <div key={item.text} className={styles.trustItem}>
@@ -98,7 +116,7 @@ export default function PricingPage() {
             <thead>
               <tr>
                 <th className={styles.thFeature}>Leistung</th>
-                {PLANS.map(p => (
+                {plans.map(p => (
                   <th key={p.id} className={`${styles.th} ${p.highlight ? styles.thHighlight : ''}`} style={{ '--pc': p.color }}>
                     {p.name}
                   </th>
@@ -109,7 +127,7 @@ export default function PricingPage() {
               {PLANS[0].features.map((f, i) => (
                 <tr key={f.text} className={styles.tr}>
                   <td className={styles.tdFeature}>{f.text}</td>
-                  {PLANS.map(p => (
+                  {plans.map(p => (
                     <td key={p.id} className={`${styles.td} ${p.highlight ? styles.tdHighlight : ''}`}>
                       {p.features[i].included
                         ? <span className={styles.checkYes}>✓</span>
@@ -135,9 +153,7 @@ export default function PricingPage() {
                 <span>{faq.q}</span>
                 <span className={styles.faqToggle}>{openFaq === i ? '−' : '+'}</span>
               </button>
-              {openFaq === i && (
-                <div className={styles.faqAnswer}>{faq.a}</div>
-              )}
+              {openFaq === i && <div className={styles.faqAnswer}>{faq.a}</div>}
             </div>
           ))}
         </div>

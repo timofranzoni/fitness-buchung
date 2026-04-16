@@ -16,7 +16,10 @@
       "Bash(git push *)",
       "Bash(npx supabase *)",
       "Bash(brew list *)",
-      "Bash(brew install *)"
+      "Bash(brew install *)",
+      "Bash(tar -xz -f /tmp/supabase.tar.gz -C /tmp/)",
+      "Read(//tmp/**)",
+      "Bash(/tmp/supabase *)"
     ]
   }
 }

@@ -1,8 +1,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import {
-  buildConfirmationEmail,
-  buildStudioNotificationEmail,
-  type BookingEmailData,
+  buildCancellationEmail,
+  buildStudioCancellationEmail,
+  type CancellationEmailData,
 } from '../_shared/emails.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? ''
@@ -28,41 +28,42 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { booking } = await req.json() as { booking: BookingEmailData & { studioEmail?: string } }
+    const { booking, customerEmail, studioEmail } = await req.json() as {
+      booking:       CancellationEmailData
+      customerEmail: string
+      studioEmail?:  string
+    }
 
-    if (!booking?.email || !booking?.name) {
+    if (!customerEmail || !booking?.name) {
       return new Response(JSON.stringify({ error: 'Fehlende Pflichtfelder' }),
         { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
     }
 
     const errors: string[] = []
 
-    // 1. Bestätigungsmail an Kunden
+    // 1. Stornierungsbestätigung an Kunden
     try {
       await sendEmail(
-        booking.email,
-        `✅ Buchungsbestätigung: ${booking.courseIcon} ${booking.courseName} am ${booking.dateFormatted}`,
-        buildConfirmationEmail(booking),
+        customerEmail,
+        `❌ Stornierungsbestätigung: ${booking.courseIcon} ${booking.courseName}`,
+        buildCancellationEmail(booking),
       )
     } catch (e) {
       errors.push(`Kundenmail: ${e}`)
-      console.error('Kundenmail fehlgeschlagen:', e)
+      console.error('Storno-Kundenmail fehlgeschlagen:', e)
     }
 
-    // 2. Benachrichtigung ans Studio (optional)
-    if (booking.studioEmail) {
+    // 2. Stornierungsbenachrichtigung ans Studio (optional)
+    if (studioEmail) {
       try {
         await sendEmail(
-          booking.studioEmail,
-          `🔔 Neue Buchung: ${booking.courseIcon} ${booking.courseName} – ${booking.name}`,
-          buildStudioNotificationEmail({
-            ...booking,
-            createdAt: new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }),
-          }),
+          studioEmail,
+          `⚠️ Stornierung: ${booking.courseIcon} ${booking.courseName} – ${booking.name}`,
+          buildStudioCancellationEmail(booking),
         )
       } catch (e) {
         errors.push(`Studiomail: ${e}`)
-        console.error('Studiomail fehlgeschlagen:', e)
+        console.error('Storno-Studiomail fehlgeschlagen:', e)
       }
     }
 

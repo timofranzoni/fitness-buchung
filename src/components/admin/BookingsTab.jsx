@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchAllBookings, deleteBooking } from '../../lib/bookingService.js'
+import { useStudio } from '../../context/StudioContext.jsx'
 import s from './admin.module.css'
 
 function formatDate(iso) {
@@ -19,6 +20,7 @@ const QUICK_FILTERS = [
 ]
 
 export default function BookingsTab({ studioId, onCountChange }) {
+  const { studio } = useStudio()
   const [bookings, setBookings]         = useState([])
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
@@ -35,7 +37,8 @@ export default function BookingsTab({ studioId, onCountChange }) {
   }, [studioId])
 
   async function handleDelete(id) {
-    await deleteBooking(id).catch(console.error)
+    const booking = bookings.find(b => b.id === id)
+    await deleteBooking(id, booking, studio).catch(console.error)
     const next = bookings.filter(b => b.id !== id)
     setBookings(next)
     onCountChange?.(next.length)

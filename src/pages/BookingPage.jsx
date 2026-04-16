@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import BookingForm from '../components/BookingForm.jsx'
 import BookingConfirmation from '../components/BookingConfirmation.jsx'
 import { fetchCourses } from '../lib/courseService.js'
-import { createBooking, sendConfirmationEmail } from '../lib/bookingService.js'
+import { createBooking, sendBookingEmails } from '../lib/bookingService.js'
 import { useStudio } from '../context/StudioContext.jsx'
 import styles from './BookingPage.module.css'
 
@@ -19,13 +19,16 @@ export default function BookingPage() {
   }, [studio?.id])
 
   async function handleSubmit(data) {
+    let dbRow = null
+
     try {
-      await createBooking(studio?.id, data)
+      dbRow = await createBooking(studio?.id, data)
     } catch (err) {
       console.error('Buchung konnte nicht gespeichert werden:', err)
     }
 
-    sendConfirmationEmail(data).catch(err =>
+    // E-Mails senden (fire-and-forget) — cancel_token aus DB-Zeile
+    sendBookingEmails(data, dbRow, studio).catch(err =>
       console.warn('E-Mail konnte nicht gesendet werden:', err)
     )
 

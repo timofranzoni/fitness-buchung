@@ -1,5 +1,25 @@
 import { supabase } from './supabase.js'
 
+const SUPABASE_URL     = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+// Direkter fetch zur Edge Function — zuverlässiger als supabase.functions.invoke
+async function invokeFunction(name, body) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify(body),
+  })
+  const text = await res.text()
+  if (!res.ok) throw new Error(`${name} HTTP ${res.status}: ${text}`)
+  return JSON.parse(text)
+}
+
+// ── Buchung erstellen ─────────────────────────────────────────────────────────
+
 export async function createBooking(studioId, bookingData) {
   const { data, error } = await supabase
     .from('bookings')
@@ -14,12 +34,14 @@ export async function createBooking(studioId, bookingData) {
       booking_date:   bookingData.date,
       studio_id:      studioId,
     })
-    .select('*, studios(name, notification_email)')
+    .select()
     .single()
 
   if (error) throw error
-  return data  // enthält cancel_token aus DB
+  return data  // enthält cancel_token wenn migration_005 gelaufen ist
 }
+
+// ── Buchungsbestätigung + Studio-Benachrichtigung senden ─────────────────────
 
 export async function sendBookingEmails(bookingData, dbRow, studio) {
   const dateFormatted = new Date(bookingData.date + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -44,9 +66,13 @@ export async function sendBookingEmails(bookingData, dbRow, studio) {
     },
   }
 
-  const { error } = await supabase.functions.invoke('send-booking-email', { body: payload })
-  if (error) throw error
+  console.log('[sendBookingEmails] Sende Payload:', payload)
+  const result = await invokeFunction('send-booking-email', payload)
+  console.log('[sendBookingEmails] Antwort:', result)
+  return result
 }
+
+// ── Stornierungsmails senden ──────────────────────────────────────────────────
 
 export async function sendCancellationEmails(booking, studio) {
   const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -68,9 +94,13 @@ export async function sendCancellationEmails(booking, studio) {
     },
   }
 
-  const { error } = await supabase.functions.invoke('send-cancellation-email', { body: payload })
-  if (error) throw error
+  console.log('[sendCancellationEmails] Sende Payload:', payload)
+  const result = await invokeFunction('send-cancellation-email', payload)
+  console.log('[sendCancellationEmails] Antwort:', result)
+  return result
 }
+
+// ── Alle Buchungen laden ──────────────────────────────────────────────────────
 
 export async function fetchAllBookings(studioId) {
   let query = supabase.from('bookings').select('*').order('created_at', { ascending: false })
@@ -81,14 +111,15 @@ export async function fetchAllBookings(studioId) {
   return data ?? []
 }
 
+// ── Buchung löschen + Stornierungsmails ──────────────────────────────────────
+
 export async function deleteBooking(id, booking, studio) {
   const { error } = await supabase.from('bookings').delete().eq('id', id)
   if (error) throw error
 
-  // Stornierungsmails senden (fire-and-forget)
   if (booking) {
     sendCancellationEmails(booking, studio).catch(e =>
-      console.warn('Stornierungsmail fehlgeschlagen:', e)
+      console.error('[deleteBooking] Stornierungsmail fehlgeschlagen:', e)
     )
   }
 }
